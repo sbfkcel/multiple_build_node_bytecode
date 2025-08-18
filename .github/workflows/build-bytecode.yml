@@ -48,7 +48,7 @@ jobs:
       env:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
-        cd node_modules/*/
+        cd node_modules/$(ls node_modules/ | head -1)
         npm publish --access public
         
     - name: Upload artifacts
