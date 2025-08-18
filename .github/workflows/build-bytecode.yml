@@ -51,9 +51,10 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: bytecode-${{ matrix.platform }}-${{ matrix.arch }}
+        name: bytecode-files
         path: node_modules/*/
         retention-days: 90
+        if-no-files-found: error
 
   create-release:
     needs: build-and-publish
@@ -64,9 +65,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Download all artifacts
+    - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
+        name: bytecode-files
         path: artifacts
         
     - name: Create Release
