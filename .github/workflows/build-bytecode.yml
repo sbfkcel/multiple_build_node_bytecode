@@ -51,7 +51,7 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: bytecode-files
+        name: bytecode-${{ matrix.platform }}-${{ matrix.arch }}
         path: node_modules/*/
         retention-days: 90
         if-no-files-found: error
@@ -65,10 +65,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Download artifacts
+    - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
-        name: bytecode-files
         path: artifacts
         
     - name: Create Release
@@ -95,12 +94,10 @@ jobs:
         cd artifacts
         ls -la
         mkdir -p bytecode-package
-        # 复制所有.bc文件到打包目录
+        # 遍历所有artifacts目录，复制.bc文件
         for dir in bytecode-*; do
           if [ -d "$dir" ]; then
             echo "Processing directory: $dir"
-            ls -la "$dir"
-            # 查找并复制.bc文件
             find "$dir" -name "*.bc" -exec cp {} bytecode-package/ \;
           fi
         done
