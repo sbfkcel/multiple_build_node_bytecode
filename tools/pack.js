@@ -71,8 +71,11 @@ const generateVersion = async (packageName) => {
         const packageName =  process.env.pkgName || (srcPathObj.name === 'index' ? path.basename(srcPathObj.dir) :  srcPathObj.name);
         const npmPackageName = `${npmUser}-${camelToKebab(packageName)}`;
         const outputDir = path.join(path.resolve(),'node_modules',npmPackageName);
-        const outputFileBc = path.join(outputDir,`${process.platform}_${process.arch}.bc`);
-        const outputFileJs = path.join(outputDir,`${process.platform}_${process.arch}.js`);         // 保存JS代码（用于调试）
+        // 使用环境变量中的平台和架构信息，如果没有则回退到process的值
+        const platform = process.env.PLATFORM || process.platform;
+        const arch = process.env.ARCH || process.arch;
+        const outputFileBc = path.join(outputDir,`${platform}_${arch}.bc`);
+        const outputFileJs = path.join(outputDir,`${platform}_${arch}.js`);         // 保存JS代码（用于调试）
         fs.ensureDirSync(outputDir);                                                                // 保证目录存在
         const script = new vm.Script(jsCode);
         const byteCode = script.createCachedData();                                                 // 得到 vm 中缓存的字节码
@@ -85,7 +88,7 @@ const generateVersion = async (packageName) => {
 
         const entryTpl = path.join(__dirname,'index.tpl');
         const entryData = {};
-        entryData.name = `${process.platform}_${process.arch}.bc`;
+        entryData.name = `${platform}_${arch}.bc`;
         const entryCode = createEntry(fs.readFileSync(entryTpl,'utf-8'),entryData);                 // 创建入口内容
         fs.writeFileSync(path.join(outputDir,'index.js'),entryCode);                                // 写入入口文件
         fs.writeFileSync(path.join(outputDir,'package.json'),JSON.stringify(packageObj,null,2));    // 写入包配置文件
