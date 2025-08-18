@@ -1,14 +1,13 @@
-# .github/workflows/build-bytecode.yml
-name: Build Bytecode for Multiple Platforms
+name: Build and Publish Bytecode
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
-  build-bytecode:
+  build-and-publish:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -16,39 +15,45 @@ jobs:
           - os: ubuntu-latest
             platform: linux
             arch: x64
-          - os: ubuntu-latest
-            platform: linux
-            arch: arm64
           - os: windows-latest
             platform: win32
             arch: x64
-          - os: macos-latest
+          - os: macos-15
             platform: darwin
             arch: x64
-          - os: macos-latest
-            platform: darwin
-            arch: arm64
 
     steps:
-    - uses: actions/checkout@v4
-    
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18.15.0'
+        cache: 'npm'
+        registry-url: 'https://registry.npmjs.org'
         
     - name: Install dependencies
       run: npm install
       
-    - name: Build bytecode for ${{ matrix.platform }}-${{ matrix.arch }}
+    - name: Build bytecode
+      env:
+        PLATFORM: ${{ matrix.platform }}
+        ARCH: ${{ matrix.arch }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
-        # 模拟目标平台环境
-        export PLATFORM=${{ matrix.platform }}
-        export ARCH=${{ matrix.arch }}
         node ./tools/pack.js ./codes/clients/index.js
         
-    - name: Upload bytecode artifacts
+    - name: Publish to npm
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: |
+        cd node_modules/*/
+        npm publish --access public
+        
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: bytecode-${{ matrix.platform }}-${{ matrix.arch }}
-        path: node_modules/*/dist/
+        path: node_modules/*/
+        retention-days: 90
