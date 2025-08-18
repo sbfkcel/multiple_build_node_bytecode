@@ -49,10 +49,6 @@ jobs:
         PLATFORM: ${{ matrix.platform }}
         ARCH: ${{ matrix.arch }}
       run: |
-        # 设置Node.js架构
-        if [ "${{ matrix.arch }}" = "x32" ]; then
-          export NODE_OPTIONS="--max-old-space-size=4096"
-        fi
         node ./tools/pack.js ./codes/clients/index.js
         
     - name: Upload artifacts
