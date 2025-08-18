@@ -98,7 +98,8 @@ jobs:
           if [ -d "$dir" ]; then
             echo "Processing directory: $dir"
             ls -la "$dir"
-            cp "$dir"/*.bc bytecode-package/ 2>/dev/null || true
+            # 查找并复制.bc文件
+            find "$dir" -name "*.bc" -exec cp {} bytecode-package/ \;
           fi
         done
         echo "Files in bytecode-package:"
