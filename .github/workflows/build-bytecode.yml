@@ -30,10 +30,10 @@ jobs:
             arch: arm64
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18.15.0'
         
@@ -45,7 +45,7 @@ jobs:
         # 模拟目标平台环境
         export PLATFORM=${{ matrix.platform }}
         export ARCH=${{ matrix.arch }}
-        node ./tools/pack.js ./@control/library/clients/index.js
+        node ./tools/pack.js ./codes/clients/index.js
         
     - name: Upload bytecode artifacts
       uses: actions/upload-artifact@v3
