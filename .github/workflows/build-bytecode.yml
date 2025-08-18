@@ -15,9 +15,6 @@ jobs:
           - os: ubuntu-latest
             platform: linux
             arch: x64
-          - os: ubuntu-latest
-            platform: linux
-            arch: ia32
           - os: windows-latest
             platform: win32
             arch: x64
@@ -55,7 +52,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: bytecode-${{ matrix.platform }}-${{ matrix.arch }}
-        path: node_modules/*/*.bc
+        path: node_modules/*/
         retention-days: 90
 
   create-release:
@@ -84,7 +81,6 @@ jobs:
           Bytecode builds for multiple platforms:
           
           - Linux x64
-          - Linux ia32
           - Windows x64
           - Windows ia32
           - macOS x64 (Intel)
@@ -95,15 +91,21 @@ jobs:
     - name: Create package
       run: |
         cd artifacts
+        ls -la
         mkdir -p bytecode-package
         # 复制所有.bc文件到打包目录
         for dir in bytecode-*; do
           if [ -d "$dir" ]; then
+            echo "Processing directory: $dir"
+            ls -la "$dir"
             cp "$dir"/*.bc bytecode-package/ 2>/dev/null || true
           fi
         done
+        echo "Files in bytecode-package:"
+        ls -la bytecode-package/
         # 创建压缩包
         tar -czf bytecode-all-platforms-${{ github.ref_name }}.tar.gz -C bytecode-package .
+        ls -la *.tar.gz
         
     - name: Upload Release Assets
       uses: actions/upload-release-asset@v1
