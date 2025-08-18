@@ -31,7 +31,6 @@ jobs:
       with:
         node-version: '18.15.0'
         cache: 'npm'
-        registry-url: 'https://registry.npmjs.org'
         
     - name: Install dependencies
       run: npm install
@@ -40,16 +39,8 @@ jobs:
       env:
         PLATFORM: ${{ matrix.platform }}
         ARCH: ${{ matrix.arch }}
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
         node ./tools/pack.js ./codes/clients/index.js
-        
-    - name: Publish to npm
-      env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      run: |
-        cd node_modules/$(ls node_modules/ | head -1)
-        npm publish --access public
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
