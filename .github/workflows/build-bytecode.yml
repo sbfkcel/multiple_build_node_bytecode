@@ -52,7 +52,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: bytecode-${{ matrix.platform }}-${{ matrix.arch }}
-        path: node_modules/*/
+        path: node_modules/*/*.bc
         retention-days: 90
         if-no-files-found: error
 
@@ -95,7 +95,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-linux-x64/
+        asset_path: ./artifacts/bytecode-linux-x64/*.bc
         asset_name: linux_x64.bc
         asset_content_type: application/octet-stream
         
@@ -105,7 +105,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-win32-x64/
+        asset_path: ./artifacts/bytecode-win32-x64/*.bc
         asset_name: win32_x64.bc
         asset_content_type: application/octet-stream
         
@@ -115,7 +115,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-win32-ia32/
+        asset_path: ./artifacts/bytecode-win32-ia32/*.bc
         asset_name: win32_ia32.bc
         asset_content_type: application/octet-stream
         
@@ -125,7 +125,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-darwin-x64/
+        asset_path: ./artifacts/bytecode-darwin-x64/*.bc
         asset_name: darwin_x64.bc
         asset_content_type: application/octet-stream
         
@@ -135,6 +135,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-darwin-arm64/
+        asset_path: ./artifacts/bytecode-darwin-arm64/*.bc
         asset_name: darwin_arm64.bc
         asset_content_type: application/octet-stream
