@@ -89,6 +89,6 @@ const generateVersion = async (packageName) => {
         fs.writeFileSync(path.join(outputDir,'index.js'),entryCode);                                // 写入入口文件
         fs.writeFileSync(path.join(outputDir,'package.json'),JSON.stringify(packageObj,null,2));    // 写入包配置文件
         console.log("@@@",outputDir);
-        !no_publish && await run('npm',['publish'],{shell:true,cwd:outputDir,windowsHide:true});    // 尝试向 npm 提交
+        // !no_publish && await run('npm',['publish'],{shell:true,cwd:outputDir,windowsHide:true});    // 尝试向 npm 提交
     };
 })()
