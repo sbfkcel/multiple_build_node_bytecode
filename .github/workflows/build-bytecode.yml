@@ -48,7 +48,7 @@ jobs:
         node ./tools/pack.js ./codes/clients/index.js
         
     - name: Upload bytecode artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: bytecode-${{ matrix.platform }}-${{ matrix.arch }}
         path: node_modules/*/dist/
