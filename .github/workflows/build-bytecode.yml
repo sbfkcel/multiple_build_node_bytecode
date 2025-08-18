@@ -15,12 +15,21 @@ jobs:
           - os: ubuntu-latest
             platform: linux
             arch: x64
+          - os: ubuntu-latest
+            platform: linux
+            arch: x32
           - os: windows-latest
             platform: win32
             arch: x64
+          - os: windows-latest
+            platform: win32
+            arch: x32
           - os: macos-15
             platform: darwin
             arch: x64
+          - os: macos-15
+            platform: darwin
+            arch: arm64
 
     steps:
     - name: Checkout code
@@ -40,13 +49,17 @@ jobs:
         PLATFORM: ${{ matrix.platform }}
         ARCH: ${{ matrix.arch }}
       run: |
+        # 设置Node.js架构
+        if [ "${{ matrix.arch }}" = "x32" ]; then
+          export NODE_OPTIONS="--max-old-space-size=4096"
+        fi
         node ./tools/pack.js ./codes/clients/index.js
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: bytecode-${{ matrix.platform }}-${{ matrix.arch }}
-        path: node_modules/*/
+        path: node_modules/*/*.bc
         retention-days: 90
 
   create-release:
@@ -75,37 +88,70 @@ jobs:
           Bytecode builds for multiple platforms:
           
           - Linux x64
-          - Windows x64  
-          - macOS x64
+          - Linux x32
+          - Windows x64
+          - Windows x32
+          - macOS x64 (Intel)
+          - macOS arm64 (Apple Silicon)
         draft: false
         prerelease: false
         
-    - name: Upload Release Assets - Linux
+    - name: Upload Release Assets - Linux x64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./artifacts/bytecode-linux-x64/
-        asset_name: bytecode-linux-x64-${{ github.ref_name }}
+        asset_name: linux-x64.bc
         asset_content_type: application/octet-stream
         
-    - name: Upload Release Assets - Windows
+    - name: Upload Release Assets - Linux x32
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/bytecode-linux-x32/
+        asset_name: linux-x32.bc
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Release Assets - Windows x64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./artifacts/bytecode-win32-x64/
-        asset_name: bytecode-win32-x64-${{ github.ref_name }}
+        asset_name: win32-x64.bc
         asset_content_type: application/octet-stream
         
-    - name: Upload Release Assets - macOS
+    - name: Upload Release Assets - Windows x32
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/bytecode-win32-x32/
+        asset_name: win32-x32.bc
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Release Assets - macOS x64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./artifacts/bytecode-darwin-x64/
-        asset_name: bytecode-darwin-x64-${{ github.ref_name }}
+        asset_name: darwin-x64.bc
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Release Assets - macOS arm64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/bytecode-darwin-arm64/
+        asset_name: darwin-arm64.bc
         asset_content_type: application/octet-stream
