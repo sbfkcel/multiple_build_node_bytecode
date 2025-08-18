@@ -92,62 +92,25 @@ jobs:
         draft: false
         prerelease: false
         
-    - name: Upload Release Assets - Linux x64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-linux-x64/
-        asset_name: linux_x64.bc
-        asset_content_type: application/octet-stream
+    - name: Create package
+      run: |
+        cd artifacts
+        mkdir -p bytecode-package
+        # 复制所有.bc文件到打包目录
+        for dir in bytecode-*; do
+          if [ -d "$dir" ]; then
+            cp "$dir"/*.bc bytecode-package/ 2>/dev/null || true
+          fi
+        done
+        # 创建压缩包
+        tar -czf bytecode-all-platforms-${{ github.ref_name }}.tar.gz -C bytecode-package .
         
-    - name: Upload Release Assets - Linux ia32
+    - name: Upload Release Assets
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-linux-ia32/
-        asset_name: linux_ia32.bc
-        asset_content_type: application/octet-stream
-        
-    - name: Upload Release Assets - Windows x64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-win32-x64/
-        asset_name: win32_x64.bc
-        asset_content_type: application/octet-stream
-        
-    - name: Upload Release Assets - Windows ia32
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-win32-ia32/
-        asset_name: win32_ia32.bc
-        asset_content_type: application/octet-stream
-        
-    - name: Upload Release Assets - macOS x64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-darwin-x64/
-        asset_name: darwin_x64.bc
-        asset_content_type: application/octet-stream
-        
-    - name: Upload Release Assets - macOS arm64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/bytecode-darwin-arm64/
-        asset_name: darwin_arm64.bc
-        asset_content_type: application/octet-stream
+        asset_path: ./artifacts/bytecode-all-platforms-${{ github.ref_name }}.tar.gz
+        asset_name: bytecode-all-platforms-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip
