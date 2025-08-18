@@ -5,6 +5,7 @@ import {build} from "esbuild";
 import {fileURLToPath} from "url";
 import path,{dirname} from "path";
 import {spawn} from "child_process";
+import config from "../package.json" assert {type:"json"};
 v8.setFlagsFromString("--no-lazy");                                                                 // V8 默认是惰性解析（并不会一次性解析），https://zhuanlan.zhihu.com/p/400470592
 
 const run = (exe,args,option={shell:true}) => {
@@ -79,7 +80,7 @@ const generateVersion = async (packageName) => {
         // fs.writeFileSync(outputFileJs,jsCode);
         const packageObj = {};
         packageObj.name = npmPackageName;
-        packageObj.version = await generateVersion(npmPackageName);
+        packageObj.version = config.version;
         packageObj.main = 'index.js';
 
         const entryTpl = path.join(__dirname,'index.tpl');

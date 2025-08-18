@@ -57,3 +57,64 @@ jobs:
         name: bytecode-${{ matrix.platform }}-${{ matrix.arch }}
         path: node_modules/*/
         retention-days: 90
+
+  create-release:
+    needs: build-and-publish
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          Bytecode builds for multiple platforms:
+          
+          - Linux x64
+          - Windows x64  
+          - macOS x64
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Assets - Linux
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/bytecode-linux-x64/
+        asset_name: bytecode-linux-x64-${{ github.ref_name }}
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Release Assets - Windows
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/bytecode-win32-x64/
+        asset_name: bytecode-win32-x64-${{ github.ref_name }}
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Release Assets - macOS
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/bytecode-darwin-x64/
+        asset_name: bytecode-darwin-x64-${{ github.ref_name }}
+        asset_content_type: application/octet-stream
