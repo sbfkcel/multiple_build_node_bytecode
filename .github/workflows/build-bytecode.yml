@@ -1,0 +1,54 @@
+# .github/workflows/build-bytecode.yml
+name: Build Bytecode for Multiple Platforms
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-bytecode:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+          - os: ubuntu-latest
+            platform: linux
+            arch: arm64
+          - os: windows-latest
+            platform: win32
+            arch: x64
+          - os: macos-latest
+            platform: darwin
+            arch: x64
+          - os: macos-latest
+            platform: darwin
+            arch: arm64
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.15.0'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build bytecode for ${{ matrix.platform }}-${{ matrix.arch }}
+      run: |
+        # 模拟目标平台环境
+        export PLATFORM=${{ matrix.platform }}
+        export ARCH=${{ matrix.arch }}
+        node ./tools/pack.js ./@control/library/clients/index.js
+        
+    - name: Upload bytecode artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: bytecode-${{ matrix.platform }}-${{ matrix.arch }}
+        path: node_modules/*/dist/
