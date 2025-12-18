@@ -155,7 +155,17 @@ const createDeviceClient = async (arg,dir,loadFun)=>{
             DeviceClient['prototype'][key] = funsObj[key];
         };
         return new DeviceClient(arg);
+    }else if(addressObj.os === osDefine.harmonyos){
+        DeviceClient = (await getModules(loadFun,dir,'./OpenHarmonyClient/index.js')).default;
+        const dirPath = path.join(dir,'OpenHarmonyClient','funcs');
+        const funsObj = Object.assign({},await getDirFuns(dirPath),commonFunsObj);
+        for(const key in funsObj){
+            deviceVerify(dir,true);
+            DeviceClient['prototype'][key] = funsObj[key];
+        };
+        return new DeviceClient(arg);
     }else{
+        throw new Error(`不支持的设备系统${addressObj.os}`);
     };
 };
 
